@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.server.json",
+  "compilerOptions": { "outDir": "artifacts/test-build" },
+  "include": ["tests", "server", "shared"],
+  "exclude": []
+}

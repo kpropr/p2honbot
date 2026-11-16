@@ -1,0 +1,54 @@
+name: petuhon
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: petuhon
+      POSTGRES_USER: petuhon
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U petuhon -d petuhon"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 384m
+    command: [postgres, -c, shared_buffers=64MB, -c, max_connections=30]
+    logging: &logs
+      driver: json-file
+      options: { max-size: 10m, max-file: "3" }
+  app:
+    image: petuhon-empire:${APP_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile.release
+    restart: unless-stopped
+    env_file: .env
+    ports: ["127.0.0.1:8081:8081"]
+    depends_on:
+      db: { condition: service_healthy }
+    mem_limit: 256m
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://127.0.0.1:8081/play/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging: *logs
+  bot:
+    image: petuhon-empire:${APP_VERSION:-latest}
+    command: [node, build/server/bot.js]
+    restart: unless-stopped
+    profiles: [bot]
+    env_file: .env
+    mem_limit: 128m
+    logging: *logs
+volumes:
+  pgdata:

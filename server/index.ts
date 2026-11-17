@@ -236,7 +236,7 @@ app.get("/play/", async (_, reply) =>
 );
 app.get("/play/assets/:file", async (req, reply) => {
   const { file } = req.params as { file: string };
-  if (!/^[a-zA-Z0-9_-]+\.(js|css|svg|woff2)$/.test(file))
+  if (!/^[a-zA-Z0-9_-]+\.(js|css|svg|woff2|webp)$/.test(file))
     return reply.code(404).send();
   try {
     return reply
@@ -247,7 +247,9 @@ app.get("/play/assets/:file", async (req, reply) => {
             ? "text/css"
             : file.endsWith(".svg")
               ? "image/svg+xml"
-              : "font/woff2",
+              : file.endsWith(".webp")
+                ? "image/webp"
+                : "font/woff2",
       )
       .header("Cache-Control", "public, max-age=31536000, immutable")
       .send(await readFile(resolve("dist/assets", file)));

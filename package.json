@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
+    "dev:local": "vite --host 127.0.0.1 --mode local-game --port 5176 --strictPort",
     "build": "tsc --noEmit && vite build && tsc -p tsconfig.server.json",
     "start": "node build/server/index.js",
     "bot": "node build/server/bot.js",
@@ -15,6 +16,7 @@
     "@fastify/cookie": "^11.0.2",
     "@fastify/rate-limit": "^10.3.0",
     "fastify": "^5.6.2",
+    "lucide-react": "^1.74.0",
     "pg": "^8.16.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
